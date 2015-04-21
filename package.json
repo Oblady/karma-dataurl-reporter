@@ -1,0 +1,15 @@
+{
+  "name": "karma-dataurl-reporter",
+  "version": "0.0.0",
+  "description": "HTML dataurl reporter for karma",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Oblady/karma-dataurl-html-reporter.git"
+  },
+  "author": "oblady",
+  "license": "MIT",
+  "dependencies": {
+    "swig": "^1.4.2"
+  }
+}
