@@ -1,25 +1,19 @@
 var os = require('os');
 var path = require('path');
 var fs = require('fs');
-var builder = require('xmlbuilder');
-
 var swig = require('swig');
 
 
+var KarmaDataurlHtmlReporter = function(baseReporterDecorator, config, logger, helper, formatError, emitter) {
 
-
-var UsagReporter = function(baseReporterDecorator, config, logger, helper, formatError, emitter) {
-
-
-  var log = logger.create('reporter.usag');
-  var reporterConfig = config.usagReporter || {};
+  var reporterConfig = config.dataurlReporter || {};
   var canvases = {};
   var results = [];
 
   var pkgName = reporterConfig.suite || '';
 
   var outputFile = helper.normalizeWinPath(path.resolve(config.basePath, reporterConfig.outputFile
-      || 'usag-canvas-results.html'));
+      || 'dataurl-results.html'));
 
   var html = "";
   var pendingFileWritings = 0;
@@ -65,8 +59,8 @@ var UsagReporter = function(baseReporterDecorator, config, logger, helper, forma
       }
     });
 
-    var html = swig.renderFile(__dirname+"/tests/app/usagcanvasreport.html", {
-      title:'USAG CANVASES',
+    var html = swig.renderFile(__dirname+"/tests/app/templatereport.html", {
+      title:'CANVASES',
       tests: canvases
     });
 
@@ -76,9 +70,9 @@ var UsagReporter = function(baseReporterDecorator, config, logger, helper, forma
     helper.mkdirIfNotExists(path.dirname(outputFile), function() {
       fs.writeFile(outputFile, html, function(err) {
         if (err) {
-          log.warn('Cannot write UsagCanvas html\n\t' + err.message);
+          log.warn('Cannot write HTML\n\t' + err.message);
         } else {
-          log.debug('UsagCanvas results written to "%s".', outputFile);
+          log.debug('Dataurls written to "%s".', outputFile);
         }
 
         if (!--pendingFileWritings) {
@@ -98,9 +92,8 @@ var UsagReporter = function(baseReporterDecorator, config, logger, helper, forma
   };
 };
 
-UsagReporter.$inject = ['baseReporterDecorator', 'config', 'logger', 'helper', 'formatError', 'emitter'];
+KarmaHtmlDataurlReporter.$inject = ['baseReporterDecorator', 'config', 'logger', 'helper', 'formatError', 'emitter'];
 
-// PUBLISH DI MODULE
 module.exports = {
-  'reporter:usag': ['type', UsagReporter]
+  'reporter:dataurlReporter': ['type', KarmaDataurlHtmlReporter]
 };
