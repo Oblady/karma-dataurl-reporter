@@ -6,6 +6,7 @@ var swig = require('swig');
 
 var KarmaDataurlReporter = function(baseReporterDecorator, config, logger, helper, formatError, emitter) {
 
+  var log = logger.create('reporter.dataurl');
   var reporterConfig = config.dataurlReporter || {};
   var canvases = {};
   var results = [];
@@ -44,7 +45,7 @@ var KarmaDataurlReporter = function(baseReporterDecorator, config, logger, helpe
             canvases[dto.id] = {result:{}, canvases: []};
           }
           canvases[dto.id].canvases.push(dto);
-          info = {log:'CanvasReporter:: reporting dataurl for ' + dto.id + ' (' + browser.name + ')', type:'info'};
+          info = {log:'DataurlReporter:: reporting dataurl for ' + dto.id + ' (' + browser.name + ')', type:'info'};
         } 
         baseInfo.call(browser, info);
       };
