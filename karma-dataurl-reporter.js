@@ -4,7 +4,7 @@ var fs = require('fs');
 var swig = require('swig');
 
 
-var KarmaDataurlHtmlReporter = function(baseReporterDecorator, config, logger, helper, formatError, emitter) {
+var KarmaDataurlReporter = function(baseReporterDecorator, config, logger, helper, formatError, emitter) {
 
   var reporterConfig = config.dataurlReporter || {};
   var canvases = {};
@@ -14,6 +14,11 @@ var KarmaDataurlHtmlReporter = function(baseReporterDecorator, config, logger, h
 
   var outputFile = helper.normalizeWinPath(path.resolve(config.basePath, reporterConfig.outputFile
       || 'dataurl-results.html'));
+
+  var templateFile = helper.normalizeWinPath(path.resolve(config.basePath, reporterConfig.templateFile
+      || __dirname+"/defaulttemplatereport.html"));
+
+  var reportTitle = reporterConfig.reportTitle || 'CANVASES';
 
   var html = "";
   var pendingFileWritings = 0;
@@ -59,8 +64,8 @@ var KarmaDataurlHtmlReporter = function(baseReporterDecorator, config, logger, h
       }
     });
 
-    var html = swig.renderFile(__dirname+"/tests/app/templatereport.html", {
-      title:'CANVASES',
+    var html = swig.renderFile(templateFile, {
+      title: reportTitle,
       tests: canvases
     });
 
@@ -92,8 +97,8 @@ var KarmaDataurlHtmlReporter = function(baseReporterDecorator, config, logger, h
   };
 };
 
-KarmaHtmlDataurlReporter.$inject = ['baseReporterDecorator', 'config', 'logger', 'helper', 'formatError', 'emitter'];
+KarmaDataurlReporter.$inject = ['baseReporterDecorator', 'config', 'logger', 'helper', 'formatError', 'emitter'];
 
 module.exports = {
-  'reporter:dataurlReporter': ['type', KarmaDataurlHtmlReporter]
+  'reporter:dataurlReporter': ['type', KarmaDataurlReporter]
 };
