@@ -100,5 +100,5 @@ var KarmaDataurlReporter = function(baseReporterDecorator, config, logger, helpe
 KarmaDataurlReporter.$inject = ['baseReporterDecorator', 'config', 'logger', 'helper', 'formatError', 'emitter'];
 
 module.exports = {
-  'reporter:dataurlReporter': ['type', KarmaDataurlReporter]
+  'reporter:dataurl': ['type', KarmaDataurlReporter]
 };
