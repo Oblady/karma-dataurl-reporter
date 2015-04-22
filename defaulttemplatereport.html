@@ -31,9 +31,9 @@
     {% for canvas in test.canvases %}
       <img src="{{ canvas.dataurl }}" />
 
-      <h4>Errors</h4>
+      <h4>Metadata</h4>
       <pre>
-        {{canvas.errors|json(2)}}
+        {{canvas.metadata|json(2)}}
       </pre>
     {% endfor %}
   </fieldset>
