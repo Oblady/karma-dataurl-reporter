@@ -3,40 +3,104 @@
 <head>
   <meta charset="utf-8" />
 
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
   <style type="text/css">
+
     img {
       border:1px solid #888;
     }
 
-    .success  h3 {
+    h2 {
+    cursor:pointer;
+    }
+
+    .success  h1 {
       color:green;
     }
     .error  h3 {
       color:red;
     }
+
+    .panel {
+      margin:0.5em;
+    }
+
+    section {
+        display:flex;
+        flex-wrap: wrap;
+    }
+
+    .errortrigger {
+      cursor:pointer;
+    }
+
+    .panel {
+      flex-basis:350px;
+      flex-grow:0;
+    }
+
+    .canvas {
+      width: auto;
+      max-width: 95%;
+    }
   </style>
 
 </head>
-<body>
-<h2>{{title}}</h2>
+<body ng-app="reporter">
+<header class="page-header">
+  <h1>{{title}}</h1>
+</header>
 
-{% for key, test in tests %}
-  <fieldset  {% if test.result.success %} class="success" {% else %} class="error" {% endif %}><legend>{{ key }}</legend>
-    <h3>{{test.result.description}}</h3>
+<div id="container">
 
-    {% for log in test.result.log %}
-      <pre>{{log}}</pre>
-    {% endfor %}
+{% for suites in tests|groupBy('rootSuite') %}
+<h2 ng-click="show{{loop.key|slugify}}=!show{{loop.key|slugify}}" >{{loop.key}}</h2>
+<section ng-if="show{{loop.key|slugify}}">
+{% for test in suites %}
+<div class="panel panel-default {% if test.result.success %} success {% else %} error {% endif %}" >
+    <div class="panel-heading">
+    {{test.result.suite|join(' ')}}
+    </div>
+    <div class="panel-body">
+      <h3>
+      {% if test.result.success %}
+        <span class="label label-success">OK</span> 
+      {% else %}
+        <span class="label label-danger">KO</span> 
+      {% endif %}
+      {{test.result.description}}</h3>
+    </div>
 
-    {% for canvas in test.canvases %}
-      <img src="{{ canvas.dataurl }}" />
 
-      <h4>Metadata</h4>
-      <pre>
-        {{canvas.metadata|json(2)}}
-      </pre>
-    {% endfor %}
-  </fieldset>
+    <div class="thumbnail">
+      {% for log in test.result.log %}
+        <pre class="alert alert-danger">{{log}}</pre>
+      {% endfor %}
+
+      {% for canvas in test.canvases|sort('browser.name') %}
+      <div>
+        <div class="caption">{{canvas.browser.name}}</div>
+        <a  href="{{canvas.dataurl}}"><img class="canvas" src="{{ canvas.dataurl }}" /></a>
+
+
+        <h4 class="errortrigger" ng-click="showerrors{{test.id|slugify}}=!showerrors{{test.id|slugify}}">Metadata</h4>
+        <pre class="well" ng-if="showerrors{{test.id|slugify}}">
+          {{canvas.errors|json(2)}}
+        </pre>
+
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
 {% endfor %}
+</section>
+{% endfor %}
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+<script>
+  angular.module('reporter',[]);
+</script>
 </body>
 </html>
