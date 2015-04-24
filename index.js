@@ -4,11 +4,21 @@ var fs = require('fs');
 var swig = require('swig');
 
 
+var slug = function (input) {
+    return input.toString().toLowerCase()
+        .replace(/\s+/g, '')           // Replace spaces with -
+        .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+        .replace(/\-/g, '')         // Replace multiple - with single -
+        ;
+};
+
+swig.setFilter('slugify', slug);
+
 var KarmaDataurlReporter = function(baseReporterDecorator, config, logger, helper, formatError, emitter) {
 
   var log = logger.create('reporter.dataurl');
   var reporterConfig = config.dataurlReporter || {};
-  var canvases = {};
+  var canvases = [];
   var results = [];
 
   var pkgName = reporterConfig.suite || '';
@@ -41,10 +51,22 @@ var KarmaDataurlReporter = function(baseReporterDecorator, config, logger, helpe
         browser.onInfo = function(info) {
         if(info.log.dataurl) {
           var dto = info.log;
-          if(!canvases[dto.id]) {
-            canvases[dto.id] = {result:{}, canvases: []};
+
+          var match = false;
+          var idx;
+          for (idx=0; idx<canvases.length; idx++) {
+            if(canvases[idx].id == dto.id) {
+              match=true;
+              break;
+            }
+          } 
+          if(match===false) {
+            canvases.push({id: dto.id, result:{}, canvases: []});
+            idx = canvases.length-1;
           }
-          canvases[dto.id].canvases.push(dto);
+
+          dto.browser = browser;
+          canvases[idx].canvases.push(dto);
           info = {log:'DataurlReporter:: reporting dataurl for ' + dto.id + ' (' + browser.name + ')', type:'info'};
         } 
         baseInfo.call(browser, info);
@@ -60,8 +82,17 @@ var KarmaDataurlReporter = function(baseReporterDecorator, config, logger, helpe
 
 
     results.forEach(function(result) {
-      if(!!canvases[result.id]) {
-          canvases[result.id].result = result;
+      var match = false;
+      var idx;
+      for (idx=0; idx<canvases.length; idx++) {
+        if(canvases[idx].id == result.id) {
+          match=true;
+          break;
+        }
+      } 
+      if(match) {
+          canvases[idx].result = result;
+          canvases[idx].rootSuite = result.suite[0];
       }
     });
 
@@ -70,8 +101,9 @@ var KarmaDataurlReporter = function(baseReporterDecorator, config, logger, helpe
       tests: canvases
     });
 
-    canvases ={};
+    canvases =[];
     results = [];
+
 
     helper.mkdirIfNotExists(path.dirname(outputFile), function() {
       fs.writeFile(outputFile, html, function(err) {
